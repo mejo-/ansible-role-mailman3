@@ -1,0 +1,61 @@
+---
+
+# The local mail transport agent to be used for Mailman3
+# (supported options: exim4, postfix)
+mailman3_mta: postfix
+
+# Install the mail transport agent?
+mailman3_mta_install: False
+mailman3_mta_config: False
+
+# Install the database server?
+mailman3_db_install: False
+
+# The DB backend for Mailman3
+# (supported options: pgsql, mysql, sqlite3)
+mailman3_db_backend: pgsql
+
+# List of sections with Mailman3 configuration settings
+mailman3_settings:
+  - section: mailman
+    settings:
+      - name: site_owner
+        value: owner@lists.example.org
+      - name: default_language
+        value: en
+  - section: mta
+    settings:
+      - name: smtp_host
+        value: localhost
+      - name: smtp_port
+        value: 25
+
+# List of Postfix config parameters for Mailman3
+# Append to the default values if append=True
+mailman3_postfix_settings:
+  - name: "owner_request_special"
+    value: "no"
+    append: False
+  - name: "transport_maps"
+    value: "hash:/var/lib/mailman3/data/postfix_lmtp"
+    append: True
+  - name: "local_recipient_maps"
+    value: "hash:/var/lib/mailman3/data/postfix_lmtp"
+    append: True
+  - name: "relay_domains"
+    value: "hash:/var/lib/mailman3/data/postfix_domains"
+    append: True
+
+# The DB backend for the Mailman3 Django webservices
+# (supported options: pgsql, mysql, sqlite3)
+mailman3_web_db_backend: pgsql
+
+# Mailman3 web configuration settings
+mailman3_web_language_code: en-us
+mailman3_web_emailname: lists.example.org
+mailman3_web_superuser_name: admin
+mailman3_web_superuser_mail: admin@lists.example.org
+mailman3_web_superuser_password: insecure
+
+# Update the mailman3-web superuser password on each run?
+mailman3_web_superuser_password_update: False

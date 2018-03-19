@@ -1,0 +1,20 @@
+---
+
+- include: dependencies.yml
+  tags:
+    - mailman3-dependencies
+
+- include: mailman3.yml
+  tags:
+    - mailman3
+
+- include: postfix.yml
+  when:
+    - mailman3_mta == 'postfix'
+    - mailman3_mta_config
+  tags:
+    - mailman3-postfix
+
+- include: mailman3-web.yml
+  tags:
+    - mailman3-web

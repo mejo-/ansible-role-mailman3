@@ -1,0 +1,40 @@
+---
+
+- name: set database backend for mailman3
+  debconf:
+    name: mailman3
+    question: mailman3/database-type
+    vtype: select
+    value: "{{ mailman3_db_backend }}"
+
+- name: install mailman3 dependencies from default release
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - "dbconfig-{{ mailman3_db_backend }}"
+    - "{{ ['python3-psycopg2'] if mailman3_db_backend == 'pgsql' else ['python3-pymysql'] if mailman3_db_backend == 'mysql' else [] }}"
+    - "lynx"
+
+- name: install mailman3 packages
+  apt:
+    pkg: "{{ item }}"
+    # TODO: set default release
+    #default_release: "stretch-backports"
+    state: present
+  with_items:
+    - "mailman3"
+
+- name: configure mailman3
+  replace:
+    path: /etc/mailman3/mailman.cfg
+    # 'before' and 'after' are inverted when used together (see the
+    # Ansible issue: https://github.com/ansible/ansible/issues/31354)
+    before: '\[{{ item.0.section }}\]'
+    after: '\[.*\]'
+    regexp: '^{{ item.1.name }}:\s+.*$'
+    replace: '{{ item.1.name }}: {{ item.1.value }}'
+  with_subelements:
+    - "{{ mailman3_settings }}"
+    - settings
+  notify: restart mailman3

@@ -1,0 +1,54 @@
+---
+
+- name: create emtpy Postfix transport maps
+  copy:
+    content: ""
+    dest: "/var/lib/mailman3/data/{{ item }}"
+    force: no
+    owner: list
+    group: list
+    mode: 0755
+  with_items:
+    - postfix_domains
+    - postfix_lmtp
+  register: mailman3_reg_postfix_maps
+
+- name: run postmap against Postfix transport maps
+  command: "postmap {{ item.dest }}"
+  args:
+    creates: "{{ item.dest }}.db"
+  with_items: "{{ mailman3_reg_postfix_maps.results }}"
+  when: item.changed
+  become: true
+  become_user: list
+
+- name: check if Postfix parameters are configured
+  shell: "postconf -hp {{ item.name }} | grep -F '{{ item.value }}'"
+  changed_when: False
+  failed_when: False
+  check_mode: False
+  register: mailman3_reg_postfix_settings
+  with_items: "{{ mailman3_postfix_settings }}"
+
+- name: configure Postfix parameters with append=False
+  command: "postconf -ep '{{ item.item.name }}={{ item.item.value }}'"
+  with_items: "{{ mailman3_reg_postfix_settings.results|json_query(query) }}"
+  vars:
+    query: "[?stdout == '' && ! (item.append)]"
+  notify:
+    - restart postfix
+
+- name: get current values for Postfix parameters with append=True
+  command: "postconf -h '{{ item.item.name }}'"
+  changed_when: False
+  check_mode: False
+  with_items: "{{ mailman3_reg_postfix_settings.results|json_query(query) }}"
+  vars:
+    query: "[?stdout == '' && item.append]"
+  register: mailman3_reg_postfix_settings_append
+
+- name: configure Postfix parameters with append=False
+  command: "postconf -ep '{{ item.item.item.name }}={{ item.stdout }} {{ item.item.item.value }}'"
+  with_items: "{{ mailman3_reg_postfix_settings_append.results }}"
+  notify:
+    - restart postfix

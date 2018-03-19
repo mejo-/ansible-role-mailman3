@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: ansible-role-mailman3
+  vars:
+    mailman3_db_backend: sqlite3
+    mailman3_web_db_backend: sqlite3

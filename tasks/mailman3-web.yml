@@ -1,0 +1,79 @@
+---
+
+- name: set database backend for mailman3-web
+  debconf:
+    name: mailman3-web
+    question: mailman3-web/database-type
+    vtype: select
+    value: "{{ mailman3_web_db_backend }}"
+
+- name: install mailman3-web dependencies from default release
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - "dbconfig-{{ mailman3_web_db_backend }}"
+    - "{{ ['python3-psycopg2'] if mailman3_db_backend == 'pgsql' else ['python3-pymysql'] if mailman3_db_backend == 'mysql' else [] }}"
+
+- name: set emailname for mailman3-web in debconf
+  debconf:
+    name: mailman3-web
+    question: mailman3-web/emailname
+    vtype: string
+    value: "{{ mailman3_web_emailname }}"
+
+- name: set superuser name for mailman3-web in debconf
+  debconf:
+    name: mailman3-web
+    question: mailman3-web/superuser-name
+    vtype: string
+    value: "{{ mailman3_web_superuser_name }}"
+
+- name: set superuser mail for mailman3-web in debconf
+  debconf:
+    name: mailman3-web
+    question: mailman3-web/superuser-mail
+    vtype: string
+    value: "{{ mailman3_web_superuser_mail }}"
+
+- name: set superuser password for mailman3-web in debconf
+  debconf:
+    name: mailman3-web
+    question: mailman3-web/superuser-password
+    vtype: password
+    value: "{{ mailman3_web_superuser_password }}"
+
+- name: install mailman3-web packages
+  apt:
+    pkg: "{{ item }}"
+    # TODO: set default release
+    #default_release: "stretch-backports"
+    state: present
+  with_items:
+    - "dbconfig-{{ mailman3_db_backend }}"
+    - "mailman3-web"
+
+- name: set language in mailman3-web config
+  lineinfile:
+    path: /etc/mailman3/mailman-web.py
+    regexp: '^LANGUAGE_CODE\s+='
+    line: "LANGUAGE_CODE = '{{ mailman3_web_language_code }}'"
+
+- name: set emailname in mailman3-web config
+  lineinfile:
+    path: /etc/mailman3/mailman-web.py
+    regexp: '^EMAILNAME\s+='
+    line: "EMAILNAME = '{{ mailman3_web_emailname }}'"
+
+# TODO: make idempotent
+- name: configure superuser for mailman3-web
+  command: >
+    /usr/share/mailman3-web/manage.py shell -c
+    "from django.contrib.auth.models import User;
+    User.objects.filter(email='{{ mailman3_web_superuser_mail }}').delete();
+    User.objects.create_superuser('{{ mailman3_web_superuser_name }}',
+    '{{ mailman3_web_superuser_mail }}',
+    '{{ mailman3_web_superuser_password }}')"
+  when: mailman3_web_superuser_password_update
+  become: true
+  become_user: www-data
