@@ -19,8 +19,7 @@
 - name: install mailman3 packages
   apt:
     pkg: "{{ item }}"
-    # TODO: set default release
-    #default_release: "stretch-backports"
+    default_release: "stretch-backports"
     state: present
   with_items:
     - "mailman3"
