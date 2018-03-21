@@ -1,5 +1,10 @@
 ---
 
+- name: install role dependencies
+  apt:
+    pkg: python-jmespath
+    state: present
+
 - import_tasks: dependencies.yml
   tags:
     - mailman3-dependencies
