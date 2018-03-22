@@ -47,7 +47,7 @@
     query: "[?stdout == '' && item.append]"
   register: mailman3_reg_postfix_settings_append
 
-- name: configure Postfix parameters with append=False
+- name: configure Postfix parameters with append=True
   command: "postconf -ep '{{ item.item.item.name }}={{ item.stdout }} {{ item.item.item.value }}'"
   with_items: "{{ mailman3_reg_postfix_settings_append.results }}"
   notify:
