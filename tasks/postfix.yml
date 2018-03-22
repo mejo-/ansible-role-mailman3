@@ -7,7 +7,7 @@
     force: no
     owner: list
     group: list
-    mode: 0755
+    mode: 0644
   with_items:
     - postfix_domains
     - postfix_lmtp
