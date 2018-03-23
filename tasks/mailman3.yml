@@ -30,6 +30,7 @@
     state: present
   with_items:
     - "mailman3"
+    - "{{ 'python3-mailman-hyperkitty' if mailman3_hyperkitty else [] }}"
 
 - name: configure mailman3
   replace:
