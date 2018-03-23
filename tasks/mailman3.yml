@@ -1,11 +1,18 @@
 ---
 
-- name: set database backend for mailman3
+- name: set database backend for mailman3 in debconf
   debconf:
     name: mailman3
     question: mailman3/database-type
     vtype: select
     value: "{{ mailman3_db_backend }}"
+
+- name: enable hyperkitty for mailman3 in debconf
+  debconf:
+    name: mailman3
+    question: mailman3/config_hyperkitty
+    vtype: select
+    value: "{{ mailman3_hyperkitty|ternary('true', 'false') }}"
 
 - name: install mailman3 dependencies from default release
   apt:

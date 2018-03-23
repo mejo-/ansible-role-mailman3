@@ -15,6 +15,9 @@ mailman3_db_install: False
 # (supported options: pgsql, mysql, sqlite3)
 mailman3_db_backend: pgsql
 
+# Enable the HyperKitty archiver for Mailman3?
+mailman3_hyperkitty: True
+
 # List of sections with Mailman3 configuration settings
 mailman3_settings:
   - section: mailman
