@@ -57,12 +57,14 @@
     path: /etc/mailman3/mailman-web.py
     regexp: '^LANGUAGE_CODE\s+='
     line: "LANGUAGE_CODE = '{{ mailman3_web_language_code }}'"
+  notify: restart mailman3-web
 
 - name: set emailname in mailman3-web config
   lineinfile:
     path: /etc/mailman3/mailman-web.py
     regexp: '^EMAILNAME\s+='
     line: "EMAILNAME = '{{ mailman3_web_emailname }}'"
+  notify: restart mailman3-web
 
 # TODO: make idempotent
 - name: configure superuser for mailman3-web
