@@ -56,6 +56,7 @@ mailman3_web_db_backend: pgsql
 # Mailman3 web configuration settings
 mailman3_web_language_code: en-us
 mailman3_web_emailname: lists.example.org
+mailman3_web_postorius_template_base_url: "http://localhost/mailman3/"
 mailman3_web_superuser_name: admin
 mailman3_web_superuser_mail: admin@lists.example.org
 mailman3_web_superuser_password: insecure

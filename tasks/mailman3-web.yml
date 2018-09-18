@@ -66,6 +66,13 @@
     line: "EMAILNAME = '{{ mailman3_web_emailname }}'"
   notify: restart mailman3-web
 
+- name: set postorius template base url in mailman3-web config
+  lineinfile:
+    path: /etc/mailman3/mailman-web.py
+    regexp: '^POSTORIUS_TEMPLATE_BASE_URL\s+='
+    line: "POSTORIUS_TEMPLATE_BASE_URL = '{{ mailman3_web_postorius_template_base_url }}'"
+  notify: restart mailman3-web
+
 # TODO: make idempotent
 - name: configure superuser for mailman3-web
   command: >
